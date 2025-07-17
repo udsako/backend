@@ -1,0 +1,673 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+package unimanagement;
+
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+
+/**
+ *
+ * @author HP
+ */
+public class maintenance extends javax.swing.JFrame {
+    
+    private String currentStaffID;
+    private JTextArea jTextAreaResults;
+    private JButton btnViewStaff, btnViewLogs, btnViewRosters;
+    private final String unitName;
+    private final boolean isSupervisor;
+
+    public maintenance(String staffID, String unitName, boolean isSupervisor) {
+        this.unitName = unitName;  // ✅ Corrected this line
+        this.isSupervisor = isSupervisor;
+        this.currentStaffID = staffID;
+
+        setTitle(unitName + " Unit Log Dashboard");
+        setSize(1000, 800);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(null);
+
+        initComponents();  // Optional placeholder for common UI setup
+
+        if (isSupervisor) {
+            setupSupervisorTools();
+        }
+    }
+
+    // Supervisor-only buttons and textarea
+    private void setupSupervisorTools() {
+        jTextAreaResults = new JTextArea();
+        jTextAreaResults.setBounds(20, 20, 550, 250);
+        add(jTextAreaResults);
+
+        btnViewStaff = new JButton("View Staff");
+        btnViewStaff.setBounds(20, 290, 120, 30);
+        add(btnViewStaff);
+
+        btnViewLogs = new JButton("View Logs");
+        btnViewLogs.setBounds(160, 290, 120, 30);
+        add(btnViewLogs);
+
+        btnViewRosters = new JButton("View Rosters");
+        btnViewRosters.setBounds(300, 290, 140, 30);
+        add(btnViewRosters);
+
+        // Event listeners
+        btnViewStaff.addActionListener(this::viewStaffAction);
+        btnViewLogs.addActionListener(this::viewLogsAction);
+        btnViewRosters.addActionListener(this::viewRostersAction);
+    }
+
+
+    // Supervisor functionality
+    private void viewStaffAction(ActionEvent evt) {
+        try {
+            List<Map<String, Object>> staffList = AdminAccessUtils.getStaffByUnit(unitName);
+            showResults(staffList);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error fetching staff: " + e.getMessage());
+        }
+    }
+
+    private void viewLogsAction(ActionEvent evt) {
+        try {
+            List<Map<String, Object>> logs = AdminAccessUtils.getSignInLogsByUnit(unitName);
+            showResults(logs);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error fetching logs: " + e.getMessage());
+        }
+    }
+
+    private void viewRostersAction(ActionEvent evt) {
+        try {
+            List<Map<String, Object>> rosters = AdminAccessUtils.getRostersByUnit(unitName);
+            showResults(rosters);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error fetching rosters: " + e.getMessage());
+        }
+    }
+
+    private void showResults(List<Map<String, Object>> data) {
+        StringBuilder sb = new StringBuilder();
+        for (Map<String, Object> row : data) {
+            for (Map.Entry<String, Object> entry : row.entrySet()) {
+                sb.append(entry.getKey()).append(": ").append(entry.getValue()).append(" | ");
+            }
+            sb.append("\n");
+        }
+        jTextAreaResults.setText(sb.toString());
+    }
+    
+        public JPanel getContentPanel() {
+    return jPanel1; // Replace with the actual main panel instance used in the JFrame
+}
+    
+//    private String currentStaffID;
+//    public maintenance(String staffID) {
+//        initComponents();
+//        this.currentStaffID = staffID;
+//  
+//    }
+    
+//    private JTextArea jTextAreaResults;
+//    private JButton btnViewStaff, btnViewLogs, btnViewRosters;
+//    private final String unitName = "Cafeteria";
+//
+//    public maintenance() {
+//        setTitle("Cafeteria Unit Dashboard");
+//        setSize(600, 400);
+//        setDefaultCloseOperation(EXIT_ON_CLOSE);
+//        setLayout(null);
+//
+//        jTextAreaResults = new JTextArea();
+//        jTextAreaResults.setBounds(20, 20, 550, 250);
+//        add(jTextAreaResults);
+//
+//        btnViewStaff = new JButton("View Staff");
+//        btnViewStaff.setBounds(20, 290, 120, 30);
+//        add(btnViewStaff);
+//
+//        btnViewLogs = new JButton("View Logs");
+//        btnViewLogs.setBounds(160, 290, 120, 30);
+//        add(btnViewLogs);
+//
+//        btnViewRosters = new JButton("View Rosters");
+//        btnViewRosters.setBounds(300, 290, 140, 30);
+//        add(btnViewRosters);
+//
+//        btnViewStaff.addActionListener(this::viewStaffAction);
+//        btnViewLogs.addActionListener(this::viewLogsAction);
+//        btnViewRosters.addActionListener(this::viewRostersAction);
+//    }
+//
+//    private void viewStaffAction(ActionEvent evt) {
+//        try {
+//            List<Map<String, Object>> staffList = AdminAccessUtils.getStaffByUnit(unitName);
+//            showResults(staffList);
+//        } catch (Exception e) {
+//            JOptionPane.showMessageDialog(this, "Error fetching staff: " + e.getMessage());
+//        }
+//    }
+//
+//    private void viewLogsAction(ActionEvent evt) {
+//        try {
+//            List<Map<String, Object>> logs = AdminAccessUtils.getSignInLogsByUnit(unitName);
+//            showResults(logs);
+//        } catch (Exception e) {
+//            JOptionPane.showMessageDialog(this, "Error fetching logs: " + e.getMessage());
+//        }
+//    }
+//
+//    private void viewRostersAction(ActionEvent evt) {
+//        try {
+//            List<Map<String, Object>> rosters = AdminAccessUtils.getRostersByUnit(unitName);
+//            showResults(rosters);
+//        } catch (Exception e) {
+//            JOptionPane.showMessageDialog(this, "Error fetching rosters: " + e.getMessage());
+//        }
+//    }
+//
+//    private void showResults(List<Map<String, Object>> data) {
+//        StringBuilder sb = new StringBuilder();
+//        for (Map<String, Object> row : data) {
+//            for (Map.Entry<String, Object> entry : row.entrySet()) {
+//                sb.append(entry.getKey()).append(": ").append(entry.getValue()).append(" | ");
+//            }
+//            sb.append("\n");
+//        }
+//        jTextAreaResults.setText(sb.toString());
+//    }
+
+
+    /**
+     * Creates new form maintenance
+     */
+
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        jLabel2 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jButton4 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel1.setBackground(new java.awt.Color(0, 0, 204));
+        jPanel1.setPreferredSize(new java.awt.Dimension(1240, 660));
+
+        jLabel1.setIcon(new javax.swing.ImageIcon("C:\\Users\\HP\\OneDrive\\Documents\\NetBeansProjects\\cafeteria\\src\\images\\pau_icon-150x150.png")); // NOI18N
+
+        jLabel2.setFont(new java.awt.Font("Microsoft Himalaya", 1, 36)); // NOI18N
+        jLabel2.setText("MAINTENANCE STAFF");
+
+        jTable1.setBackground(new java.awt.Color(0, 153, 255));
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "shift_name", "start_time", "end_time"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Object.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(jTable1);
+
+        jButton4.setFont(new java.awt.Font("Microsoft Himalaya", 1, 18)); // NOI18N
+        jButton4.setText("Get from database");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        jButton1.setFont(new java.awt.Font("Microsoft Himalaya", 1, 18)); // NOI18N
+        jButton1.setText("Logout");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setFont(new java.awt.Font("Microsoft Himalaya", 1, 18)); // NOI18N
+        jButton2.setText("Login");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setFont(new java.awt.Font("Microsoft Himalaya", 1, 18)); // NOI18N
+        jButton3.setText("shift swap");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jSeparator1))
+                .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(116, 116, 116)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 551, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton3))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(149, 149, 149)
+                        .addComponent(jButton4)
+                        .addGap(85, 85, 85)
+                        .addComponent(jButton2)
+                        .addGap(88, 88, 88)
+                        .addComponent(jButton1)))
+                .addGap(440, 514, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(142, 142, 142)
+                        .addComponent(jButton3)))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton4)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
+                .addContainerGap(226, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1283, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 726, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+try {
+    // Connect to database
+    Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/universitymanagement", "root", "Awele2006");
+
+    // Step 1: Get the unit of the currently logged-in user using their username (email or name)
+    String unitQuery = "SELECT unit FROM registration WHERE name = ?";
+    PreparedStatement pstUnit = conn.prepareStatement(unitQuery);
+    pstUnit.setString(1, LoginSession.username);  // Use the globally stored logged-in username
+    ResultSet rsUnit = pstUnit.executeQuery();
+
+    if (rsUnit.next()) {
+        String unit = rsUnit.getString("unit");
+
+        // Step 2: Get shift data for that unit
+        String shiftQuery = "SELECT shift_name, start_time, end_time FROM unit_shifts WHERE unit = ?";
+        PreparedStatement pstShift = conn.prepareStatement(shiftQuery);
+        pstShift.setString(1, unit);
+        ResultSet rsShift = pstShift.executeQuery();
+
+        // Step 3: Populate the JTable
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);  // Clear existing rows
+
+        while (rsShift.next()) {
+            model.addRow(new Object[]{
+                rsShift.getString("shift_name"),
+                rsShift.getTime("start_time"),
+                rsShift.getTime("end_time")
+            });
+        }
+
+        rsShift.close();
+        pstShift.close();
+    } else {
+        JOptionPane.showMessageDialog(null, "Unit not found for logged-in user.");
+    }
+
+    rsUnit.close();
+    pstUnit.close();
+    conn.close();
+
+} catch (Exception e) {
+    e.printStackTrace();
+    JOptionPane.showMessageDialog(null, "Error retrieving shift data: " + e.getMessage());
+}
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+try (Connection con = DriverManager.getConnection(
+        "jdbc:mysql://localhost:3306/universitymanagement", "root", "Awele2006")) {
+
+    String staffID = LoginSession.getLoggedInStaffID();
+    if (staffID == null || staffID.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Error: Staff ID not found in session. Please re-login.");
+        return;
+    }
+
+    Timestamp logoutTime = new Timestamp(System.currentTimeMillis());
+    java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
+
+    // ✅ STEP 1: Find the exact active shift for today with NULL logout
+    String findShiftSQL = "SELECT shift_start, shift_end FROM shift_attendance " +
+                          "WHERE staffID = ? AND attendance_date = ? AND logout_time IS NULL " +
+                          "ORDER BY shift_start ASC LIMIT 1"; // assume first open shift is active
+
+    PreparedStatement findShiftPst = con.prepareStatement(findShiftSQL);
+    findShiftPst.setString(1, staffID);
+    findShiftPst.setDate(2, today);
+
+    ResultSet rs = findShiftPst.executeQuery();
+
+    if (rs.next()) {
+        Timestamp shiftStart = rs.getTimestamp("shift_start");
+        Timestamp shiftEnd = rs.getTimestamp("shift_end");
+
+        // ✅ STEP 2: Update only the specific shift_attendance row
+        String updateShiftSQL = "UPDATE shift_attendance SET logout_time = ? " +
+                                "WHERE staffID = ? AND shift_start = ? AND attendance_date = ?";
+        PreparedStatement shiftPst = con.prepareStatement(updateShiftSQL);
+        shiftPst.setTimestamp(1, logoutTime);
+        shiftPst.setString(2, staffID);
+        shiftPst.setTimestamp(3, shiftStart);
+        shiftPst.setDate(4, today);
+        int shiftUpdated = shiftPst.executeUpdate();
+
+        // ✅ STEP 3: Update signin_logs for the same shift (match login time/date)
+        String updateLogSQL = "UPDATE signin_logs SET logout_time = ? " +
+                              "WHERE staffID = ? AND signin_date = ? AND logout_time IS NULL";
+        PreparedStatement logPst = con.prepareStatement(updateLogSQL);
+        logPst.setTimestamp(1, logoutTime);
+        logPst.setString(2, staffID);
+        logPst.setDate(3, today);
+        int logUpdated = logPst.executeUpdate();
+
+        if (shiftUpdated > 0 || logUpdated > 0) {
+            JOptionPane.showMessageDialog(this, "✅ Logout successful for shift starting at " + shiftStart);
+        } else {
+            JOptionPane.showMessageDialog(this, "⚠️ No shift or login session found to update.");
+        }
+
+    } else {
+        JOptionPane.showMessageDialog(this, "⚠️ No active shift found for today to log out of.");
+    }
+
+} catch (Exception ex) {
+    ex.printStackTrace();
+    JOptionPane.showMessageDialog(this, "❌ Error during logout: " + ex.getMessage());
+}
+
+
+
+// ✅ Close current window and show login screen
+//this.dispose();
+//login loginScreen = new login();
+//loginScreen.setVisible(true);
+       // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+int selectedRow = jTable1.getSelectedRow();
+if (selectedRow == -1) {
+    JOptionPane.showMessageDialog(this, "Please select a shift to sign in.");
+    return;
+}
+
+try (Connection conn = DriverManager.getConnection(
+        "jdbc:mysql://localhost:3306/universitymanagement", "root", "Awele2006")) {
+
+    // ✅ Use staffID from login session
+    String staffID = LoginSession.getLoggedInStaffID();
+    if (staffID == null || staffID.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Error: Staff ID not found in session. Please re-login.");
+        return;
+    }
+
+    // 🔁 Extract shift details from table
+    java.sql.Time shiftStartTime = (java.sql.Time) jTable1.getValueAt(selectedRow, 1);
+    java.sql.Time shiftEndTime = (java.sql.Time) jTable1.getValueAt(selectedRow, 2);
+
+    java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
+    long todayMillis = today.getTime();
+
+    Timestamp shiftStart = new Timestamp(todayMillis + shiftStartTime.getTime());
+    Timestamp shiftEnd = new Timestamp(todayMillis + shiftEndTime.getTime());
+    Timestamp loginTime = new Timestamp(System.currentTimeMillis());
+
+    // 🔍 Check if already signed in today
+    String checkSql = "SELECT * FROM shift_attendance WHERE staffID = ? AND shift_start = ? AND attendance_date = ?";
+    PreparedStatement checkPst = conn.prepareStatement(checkSql);
+    checkPst.setString(1, staffID);
+    checkPst.setTimestamp(2, shiftStart);
+    checkPst.setDate(3, today);
+
+    ResultSet rsCheck = checkPst.executeQuery();
+    if (rsCheck.next()) {
+        JOptionPane.showMessageDialog(this, "You have already signed in for this shift today.");
+        return;
+    }
+
+    // ✅ Insert into shift_attendance
+    String insertSql = "INSERT INTO shift_attendance (staffID, shift_start, shift_end, login_time, attendance_date) VALUES (?, ?, ?, ?, ?)";
+    PreparedStatement pst = conn.prepareStatement(insertSql);
+    pst.setString(1, staffID);
+    pst.setTimestamp(2, shiftStart);
+    pst.setTimestamp(3, shiftEnd);
+    pst.setTimestamp(4, loginTime);
+    pst.setDate(5, today);
+
+    int inserted = pst.executeUpdate();
+
+    if (inserted > 0) {
+        // ✅ Insert into signin_logs
+        String logSql = "INSERT INTO signin_logs (staffID, login_time, signin_date) VALUES (?, ?, ?)";
+        PreparedStatement logPst = conn.prepareStatement(logSql);
+        logPst.setString(1, staffID);
+        logPst.setTimestamp(2, loginTime);
+        logPst.setDate(3, today);
+        logPst.executeUpdate();
+
+        // ✅ Insert into rosters
+        String rosterSql = "INSERT INTO rosters (staffID, shift_start, shift_end) VALUES (?, ?, ?)";
+        PreparedStatement rosterPst = conn.prepareStatement(rosterSql);
+        rosterPst.setString(1, staffID);
+        rosterPst.setTimestamp(2, shiftStart);
+        rosterPst.setTimestamp(3, shiftEnd);
+        rosterPst.executeUpdate();
+
+        JOptionPane.showMessageDialog(this, "✅ Sign-in successful for shift starting at " + shiftStart);
+    } else {
+        JOptionPane.showMessageDialog(this, "❌ Failed to sign in. Please try again.");
+    }
+
+} catch (Exception e) {
+    JOptionPane.showMessageDialog(this, "⚠️ Database error: " + e.getMessage());
+    e.printStackTrace();
+}
+
+
+
+  // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
+
+    JTextField requesterField = new JTextField(currentStaffID); // auto-filled current user
+    requesterField.setEditable(false);
+    JTextField otherUserField = new JTextField();
+    JTextField shiftIdField = new JTextField();
+
+    panel.add(new JLabel("Your Staff ID:"));
+    panel.add(requesterField);
+    panel.add(new JLabel("Other Staff's ID to switch with:"));
+    panel.add(otherUserField);
+    panel.add(new JLabel("Shift ID to switch:"));
+    panel.add(shiftIdField);
+
+    int result = JOptionPane.showConfirmDialog(null, panel, 
+        "Request Shift Switch", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+    if (result == JOptionPane.OK_OPTION) {
+        try {
+            String requesterId = requesterField.getText().trim();
+            String otherUserId = otherUserField.getText().trim();
+            int shiftId = Integer.parseInt(shiftIdField.getText().trim());
+
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/universitymanagement", "root", "Awele2006");
+
+            String sql = "INSERT INTO shift_swap_requests (requester_id, requested_with_id, shift_id, status) VALUES (?, ?, ?, 'Pending')";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, requesterId);
+            pst.setString(2, otherUserId);
+            pst.setInt(3, shiftId);
+
+            int inserted = pst.executeUpdate();
+            if (inserted > 0) {
+                JOptionPane.showMessageDialog(null, "Shift switch request submitted successfully!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Failed to submit request. Try again.");
+            }
+
+            pst.close();
+            conn.close();
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
+    }
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(maintenance.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(maintenance.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(maintenance.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(maintenance.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+            String staffID = null;
+            String unit = "Cafeteria";
+            boolean isSupervisor = true;
+                new maintenance(staffID, unit, isSupervisor).setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JTable jTable1;
+    // End of variables declaration//GEN-END:variables
+}
