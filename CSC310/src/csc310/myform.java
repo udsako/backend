@@ -566,7 +566,6 @@ tableModel.setRowCount(0); // TODO add your handling code here:
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
 FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV Files", "csv");
-jFileChooser jFilechooser1 = new jFileChooser;
         jFileChooser1.setAcceptAllFileFilterUsed(false);   
         jFileChooser1.addChoosableFileFilter(filter);
         int open = jFileChooser1.showOpenDialog(null);
@@ -591,7 +590,8 @@ jFileChooser jFilechooser1 = new jFileChooser;
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(rootPane, "Error Reading File");
-        }        // TODO add your handling code here:
+        } 
+        }// TODO add your handling code here:
     }//GEN-LAST:event_jButton10ActionPerformed
 
     /**

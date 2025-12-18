@@ -459,8 +459,17 @@ if (selectedRow == -1) {
     return;
 }
 
-try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/universitymanagement", "root", "Awele2006")) {
+try (Connection conn = DriverManager.getConnection(
+        "jdbc:mysql://localhost:3306/universitymanagement", "root", "Awele2006")) {
 
+    // ✅ Use staffID from login session
+    String staffID = LoginSession.getLoggedInStaffID();
+    if (staffID == null || staffID.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Error: Staff ID not found in session. Please re-login.");
+        return;
+    }
+
+    // 🔁 Extract shift details from table
     java.sql.Time shiftStartTime = (java.sql.Time) jTable1.getValueAt(selectedRow, 1);
     java.sql.Time shiftEndTime = (java.sql.Time) jTable1.getValueAt(selectedRow, 2);
 
@@ -471,24 +480,23 @@ try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/
     Timestamp shiftEnd = new Timestamp(todayMillis + shiftEndTime.getTime());
     Timestamp loginTime = new Timestamp(System.currentTimeMillis());
 
-    // Check if already signed in
+    // 🔍 Check if already signed in today
     String checkSql = "SELECT * FROM shift_attendance WHERE staffID = ? AND shift_start = ? AND attendance_date = ?";
     PreparedStatement checkPst = conn.prepareStatement(checkSql);
-    checkPst.setString(1, currentStaffID);
+    checkPst.setString(1, staffID);
     checkPst.setTimestamp(2, shiftStart);
     checkPst.setDate(3, today);
 
     ResultSet rsCheck = checkPst.executeQuery();
-
     if (rsCheck.next()) {
         JOptionPane.showMessageDialog(this, "You have already signed in for this shift today.");
         return;
     }
 
-    // Insert into shift_attendance table
+    // ✅ Insert into shift_attendance
     String insertSql = "INSERT INTO shift_attendance (staffID, shift_start, shift_end, login_time, attendance_date) VALUES (?, ?, ?, ?, ?)";
     PreparedStatement pst = conn.prepareStatement(insertSql);
-    pst.setString(1, currentStaffID);
+    pst.setString(1, staffID);
     pst.setTimestamp(2, shiftStart);
     pst.setTimestamp(3, shiftEnd);
     pst.setTimestamp(4, loginTime);
@@ -497,28 +505,29 @@ try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/
     int inserted = pst.executeUpdate();
 
     if (inserted > 0) {
-        // ✅ Insert into signin_log as well
+        // ✅ Insert into signin_logs
         String logSql = "INSERT INTO signin_logs (staffID, login_time, signin_date) VALUES (?, ?, ?)";
         PreparedStatement logPst = conn.prepareStatement(logSql);
-        logPst.setString(1, currentStaffID);
+        logPst.setString(1, staffID);
         logPst.setTimestamp(2, loginTime);
         logPst.setDate(3, today);
         logPst.executeUpdate();
-        
-     String rosterSql = "INSERT INTO rosters (staffID, shift_start, shift_end) VALUES (?, ?, ?)";
+
+        // ✅ Insert into rosters
+        String rosterSql = "INSERT INTO rosters (staffID, shift_start, shift_end) VALUES (?, ?, ?)";
         PreparedStatement rosterPst = conn.prepareStatement(rosterSql);
-        rosterPst.setString(1, currentStaffID);
+        rosterPst.setString(1, staffID);
         rosterPst.setTimestamp(2, shiftStart);
         rosterPst.setTimestamp(3, shiftEnd);
         rosterPst.executeUpdate();
 
-        JOptionPane.showMessageDialog(this, "Sign in successful for shift starting at " + shiftStart);
+        JOptionPane.showMessageDialog(this, "✅ Sign-in successful for shift starting at " + shiftStart);
     } else {
-        JOptionPane.showMessageDialog(this, "Failed to sign in. Please try again.");
+        JOptionPane.showMessageDialog(this, "❌ Failed to sign in. Please try again.");
     }
 
 } catch (Exception e) {
-    JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
+    JOptionPane.showMessageDialog(this, "⚠️ Database error: " + e.getMessage());
     e.printStackTrace();
 }
      // TODO add your handling code here:
